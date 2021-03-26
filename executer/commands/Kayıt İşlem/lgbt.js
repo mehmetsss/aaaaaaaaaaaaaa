@@ -1,0 +1,135 @@
+const Command = require("../../../inventory/base/Command");
+const Discord = require("discord.js");
+const Memberz = require('../../../../../MODELS/members');
+const jailed = require('../../../../../MODELS/tempjails');
+const { checkDays } = require("../../helpers/functionz");
+const low = require('lowdb');
+const registries = require("../../../../../MODELS/registries");
+const namedata = require("../../../../../MODELS/nameData");
+const dutyreg = require("../../../../../MODELS/duty_registry");
+const duties = require("../../../../../MODELS/userXp");
+
+class Confirm extends Command {
+
+    constructor(client) {
+        super(client, {
+            name: "lgbt",
+            description: "İsmi ayarladıktan sonra kişiyi lgbt olarak kayıt eder",
+            usage: "lgbt etiket/id",
+            examples: ["lgbt 674565119161794560"],
+            aliases: [],
+            permLvl: ["cmd-registry"],
+            cmdChannel: "cmd-kayıt",
+            cooldown: 30000,
+            enabled: false,
+            adminOnly: false,
+            ownerOnly: false,
+            rootOnly: false,
+            onTest: false,
+            dmCmd: false
+        });
+    }
+
+    async run(client, message, args, data) {
+
+        const roller = low(this.client.adapterroles);
+        const kanallar = low(this.client.adapterchannels);
+        const utiller = low(this.client.adapterutil);
+        const emojiler = low(this.client.adapteremojis);
+
+        client = this.client;
+
+        const kızrol1 = roller.get("kız1").value();
+        const kızrol2 = roller.get("kız2").value();
+        const erkekrol1 = roller.get("erkek1").value();
+        const erkekrol2 = roller.get("erkek2").value();
+        const lpgrol1 = roller.get("lgbt").value();
+        const lpgrol2 = roller.get("lgbti").value();
+        const yenirol = roller.get("yeni").value();
+
+        let giriş = [];
+        giriş.push(kızrol1);
+        giriş.push(kızrol2);
+        giriş.push(erkekrol1);
+        giriş.push(erkekrol2);
+        giriş.push(lpgrol1);
+        giriş.push(lpgrol2);
+        //console.log(giriş);
+
+        const genelkanal = kanallar.get("genel").value();
+        const logkanal = kanallar.get("kayıt").value();
+        let sexiboy;
+        var sexiboyzz = message.mentions.members.first();
+        if (sexiboyzz) {
+            sexiboy = sexiboyzz;
+        } else {
+            sexiboy = message.guild.members.cache.get(args[0]);
+        }
+        if (!sexiboy) return message.channel.send("Kullanıcı Bulunamadı.");
+        if (giriş.some(idd => sexiboy.roles.cache.some(r => r.id === idd))) {
+            message.channel.send("Zaten Kayıtlı!").then(msg => msg.delete({ timeout: 3000 }));
+            return message.delete({ timeout: 2000 });
+        };
+
+        if (sexiboy.displayName === sexiboy.user.username) return message.channel.send(`İsim eşleşme hatası!`)
+
+        const bela = await jailed.findOne({ _id: sexiboy.id });
+        if (bela) {
+            await sexiboy.roles.add(roller.get("th-jail").value());
+            await sexiboy.roles.remove(yenirol);
+            return message.channel.send(`Kurtulabileceğini mi sandın len ${sexiboy}`);
+        };
+
+        const embed = new Discord.MessageEmbed()
+            .setColor("#55af60")
+            .setFooter("10.12.20");
+
+        let ism = sexiboy.displayName.split(" ").slice(1).join(" ");
+        let arrs = ism.split(" | ")[1];
+        let isim = ism.split(" | ")[0];
+
+        await sexiboy.roles.add([roller.get("lgbt").value(), roller.get("lgbti").value()]);
+        await sexiboy.roles.remove(roller.get("yeni").value());
+        if (sexiboy.user.username.includes((await utiller).get("tag").value())) sexiboy.roles.add(roller.get("th-taglı").value(), roller.get("member").value());
+
+        let invarray = [];
+        let dosyacık = 0;
+        let dosya;
+        let systeminv = await registries.findOne({ _id: message.member.user.id });
+        invarray.push(sexiboy.user.id);
+        if (!systeminv) {
+            try {
+                let sex = await registries({ _id: message.member.user.id, registries: invarray });
+                await sex.save();
+            } catch (error) {
+                throw error;
+            }
+            dosya = invarray;
+            dosyacık = 1;
+        } else {
+            dosya = systeminv.get("registries");
+            dosyacık = dosya.length;
+            if (!dosya.includes(sexiboy.user.id)) {
+                await registries.updateOne({ _id: message.member.user.id }, { $push: { registries: sexiboy.user.id } });
+                dosyacık = dosya.length + 1;
+            };
+        };
+        let system = await namedata.findOne({ _id: sexiboy.user.id });
+        if (!system) {
+            try {
+                let sex = await namedata({ _id: sexiboy.user.id, isim: isim, yaş: arrs, sex: "Lgbt", date: new Date() });
+                await sex.save();
+            } catch (error) {
+                throw error;
+            }
+        };
+        message.channel.send(embed.setDescription(`${sexiboy} kişisinin kaydı ${message.member} tarafından gerçekleştirildi.\nBu kişinin kayıt sayısı: \`${dosyacık}\``));
+        message.guild.channels.cache.get((await kanallar).get("cmd_kayıt").value()).send(new Discord.MessageEmbed()
+            .setDescription(`${sexiboy} kişisinin verileri başarıyla işlenmiştir.`).setColor('#55af60')
+            .addField("Cinsiyet:", "LGBT", true).addField("İsim:", isim, true).addField("Yaş", arrs, true));
+
+    }
+
+}
+
+module.exports = Confirm;
