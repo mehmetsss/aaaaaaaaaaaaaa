@@ -50,13 +50,14 @@ class Confirm extends Command {
             const shem = {
                 no: index + 1,
                 Kullanıcı: fff,
-                miktar: element.invites.length
+                miktar: element.invites.length,
+                net: element.invites.filter(i => message.guild.members.cache.get(i.user)).length
             }
             docs.push(shem)
         }
         //console.log(documents
         const embeddoc = stringTable.create(docs, {
-            headers: ['no', 'Kullanıcı', 'miktar']
+            headers: ['no', 'Kullanıcı', 'miktar', 'net']
         });
         const embed = new Discord.MessageEmbed()
         message.channel.send(embed.setTitle("INVITE TOP LIST").setDescription(`\`\`\`md\n${embeddoc}\`\`\``))

@@ -56,7 +56,7 @@ class Izinver extends Command {
         if (system) return message.channel.send(new Discord.MessageEmbed().setDescription(`${sexiboy} üyesi için şuan varolan bir **${system.effect}** izini bulunmaktadır!`));
         try {
             const sex = await izin({ _id: sexiboy.user.id, count: args[3], type: eyup, effect: kel, created: new Date(), time: args[4] });
-            await sex.save();            
+            await sex.save();
         } catch (error) {
             console.log(error);
         };

@@ -55,7 +55,7 @@ class Confirm extends Command {
         });
         fs.writeFileSync('./inventory/src/esle.png', grafik.stop())
         */
-        /*
+        
          const roller = await low(this.client.adapterroles);
          const array = message.guild.members.cache.filter(m => !m.roles.cache.has(roller.get("th-booster").value())).filter(m => m.roles.cache.has(roller.get("member").value())).array();
          for (let index = 0; index < array.length; index++) {
@@ -78,30 +78,7 @@ class Confirm extends Command {
              // else message.channel.send(`${system.isim} | ${system.yaş} , ${system.sex}`);
  
          }
-         */
-        const yetkili = message.guild.roles.cache.get('718754751893733416');
-        const embed = new Discord.MessageEmbed()
-            .setAuthor("Hoş Geldin", message.guild.iconURL())
-            .setColor("#2f3136")
-            .setTitle(message.guild.name)
-            .setFooter(`20 Şubat 2020'den İtibaren... | ${new Date(Date.now()).getUTCDate()}.${new Date(Date.now()).getUTCMonth() + 1}.${new Date(Date.now()).getUTCFullYear()}`, client.user.displayAvatarURL())
-            .setDescription(
-                stripIndents`
-           
-        ${emojis.get("hgembed5").value()} **${message.member.user.username}** Aramıza Katıldı!
-
-        ${emojis.get("beraber").value()} Seninle Beraber **${rain(message.guild.memberCount)}** Kişiyiz.
-
-        ${emojis.get("hexagon").value()} Seni Davet Eden Kişi: **${message.member}** [\`Davet Sayısı: ${31}\`]
-
-        ${emojis.get("countdown").value()} **Hesap:** ${rain(checkDays(message.member.user.createdAt))} Gün Önce Açılmıştır.
-        
-        ${emojis.get("hgembed6").value()} Kayıt Olmak İçin ${yetkili} Rolündeki Yetkilileri Etiketleyerek Ses Teyit Odasına Geçiniz!
-       
-       `)
-            //.setImage(utiller.get("welcome").value())
-            .setThumbnail(message.member.user.displayAvatarURL())
-        await message.channel.send(embed)
+         
 
     }
 
